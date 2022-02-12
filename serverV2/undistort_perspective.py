@@ -124,7 +124,7 @@ def distort_recover(images, criteria):
 if __name__ == '__main__':
     criteria = (cv2.TERM_CRITERIA_MAX_ITER | cv2.TERM_CRITERIA_EPS, 30, 0.001)
     # 设置寻找亚像素角点的参数，采用的停止准则是最大循环次数30和最大误差容限0.001
-    images = glob.glob(R'D:\Courses\IPP\serverV2\chessboard_1_8\*.jpg')
+    images = glob.glob(R'D:\Courses\SJTU-IPP-Program2022\far\*.jpg')
     # images = glob.glob(R'D:\Courses\IPP\images\*.jpg')
     print("load the pictures!")
     dst1, w, h = distort_recover(images, criteria)
