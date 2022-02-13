@@ -3,6 +3,51 @@ import numpy as np
 import glob
 
 
+def get_camera_matrix(images):
+    objp = np.zeros((11 * 8, 3), np.float32)
+    objp[:, :2] = np.mgrid[0:11, 0:8].T.reshape(-1, 2)
+    obj_points = []  # 存储3D点
+    img_points = []  # 存储2D点
+    size_all = 0
+    file1 = images[0]
+    img_1 = cv2.imread(file1)
+    h_, w_ = img_1.shape[:2]
+    gray_1 = cv2.cvtColor(img_1, cv2.COLOR_BGR2GRAY)
+    size_all = gray_1.shape[::-1]
+    for fname in images:
+        img = cv2.imread(fname)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        size = gray.shape[::-1]
+        ret, corners = cv2.findChessboardCorners(gray, (11, 8), flags=cv2.CALIB_CB_ADAPTIVE_THRESH +
+                                                                      cv2.CALIB_CB_FAST_CHECK +
+                                                                      cv2.CALIB_CB_NORMALIZE_IMAGE)
+        if ret:
+            print("find chessboard corners!")
+            obj_points.append(objp)
+            corners2 = cv2.cornerSubPix(gray, corners, (5, 5), (-1, -1), criteria)  # 在原角点的基础上寻找亚像素角点
+            # print(corners2)
+            if [corners2]:
+                img_points.append(corners2)
+            else:
+                img_points.append(corners)
+            print("find corner_sub_pix!")
+            # cv2.imwrite('conimg'+str(i)+'.jpg', img)
+            # cv2.imwrite('conimg_6_' + str(i) + '.jpg', img)
+            # cv2.waitKey(1500)
+    print(len(img_points))
+    # cv2.destroyAllWindows()
+    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(obj_points, img_points, size_all, None, None)
+    print("ret:", ret)
+    print("mtx:\n", mtx)  # 内参数矩阵
+    print("dist:\n", dist)  # 畸变系数   distortion cofficients = (k_1,k_2,p_1,p_2,k_3)
+    print("rvecs:\n", rvecs)  # 旋转向量  # 外参数
+    print("tvecs:\n", tvecs)  # 平移向量  # 外参数
+    print("-----------------------------------------------------")
+    img = cv2.imread(images[1])
+    h, w = img.shape[:2]
+    newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))  # 显示更大范围的图片（正常重映射之后会删掉一部分图像）
+    return newcameramtx, mtx, dist
+
 def perspective_recover(dst, criteria, w, h, size=4000, ratio=0.03):
     # recover the perspective of the picture, i.e. make the chessborad in the z=0 surface.
     # - size: 导出图片的分辨率
@@ -69,67 +114,75 @@ def perspective_recover(dst, criteria, w, h, size=4000, ratio=0.03):
     return dst
 
 
-def distort_recover(images, criteria):
-    # obtain the inner matrix of the camera and undistort the image.
-    objp = np.zeros((11 * 8, 3), np.float32)
-    objp[:, :2] = np.mgrid[0:11, 0:8].T.reshape(-1, 2)
-    obj_points = []  # 存储3D点
-    img_points = []  # 存储2D点
-    size_all = 0
-    file1 = images[0]
-    img_1 = cv2.imread(file1)
-    h_, w_ = img_1.shape[:2]
-    gray_1 = cv2.cvtColor(img_1, cv2.COLOR_BGR2GRAY)
-    size_all = gray_1.shape[::-1]
-    for fname in images:
-        img = cv2.imread(fname)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        size = gray.shape[::-1]
-        ret, corners = cv2.findChessboardCorners(gray, (11, 8), flags=cv2.CALIB_CB_ADAPTIVE_THRESH +
-                                               cv2.CALIB_CB_FAST_CHECK +
-                                               cv2.CALIB_CB_NORMALIZE_IMAGE)
-        if ret:
-            print("find chessboard corners!")
-            obj_points.append(objp)
-            corners2 = cv2.cornerSubPix(gray, corners, (5, 5), (-1, -1), criteria)  # 在原角点的基础上寻找亚像素角点
-            # print(corners2)
-            if [corners2]:
-                img_points.append(corners2)
-            else:
-                img_points.append(corners)
-            print("find corner_sub_pix!")
-            # cv2.imwrite('conimg'+str(i)+'.jpg', img)
-            # cv2.imwrite('conimg_6_' + str(i) + '.jpg', img)
-            # cv2.waitKey(1500)
-    print(len(img_points))
-    # cv2.destroyAllWindows()
-    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(obj_points, img_points, size_all, None, None)
-    print("ret:", ret)
-    print("mtx:\n", mtx)  # 内参数矩阵
-    print("dist:\n", dist)  # 畸变系数   distortion cofficients = (k_1,k_2,p_1,p_2,k_3)
-    print("rvecs:\n", rvecs)  # 旋转向量  # 外参数
-    print("tvecs:\n", tvecs)  # 平移向量  # 外参数
-    print("-----------------------------------------------------")
-    img = cv2.imread(images[1])
-    h, w = img.shape[:2]
-    newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))  # 显示更大范围的图片（正常重映射之后会删掉一部分图像）
-    print(newcameramtx)
-    print("------------------使用undistort_perspective函数-------------------")
-    dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
-    # x, y, w, h = roi
-    # dst1 = dst[y:y + h, x:x + w]
-    return dst, w_, h_
+# def distort_recover(images, criteria):
+#     # obtain the inner matrix of the camera and undistort the image.
+#     objp = np.zeros((11 * 8, 3), np.float32)
+#     objp[:, :2] = np.mgrid[0:11, 0:8].T.reshape(-1, 2)
+#     obj_points = []  # 存储3D点
+#     img_points = []  # 存储2D点
+#     size_all = 0
+#     file1 = images[0]
+#     img_1 = cv2.imread(file1)
+#     h_, w_ = img_1.shape[:2]
+#     gray_1 = cv2.cvtColor(img_1, cv2.COLOR_BGR2GRAY)
+#     size_all = gray_1.shape[::-1]
+#     for fname in images:
+#         img = cv2.imread(fname)
+#         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#         size = gray.shape[::-1]
+#         ret, corners = cv2.findChessboardCorners(gray, (11, 8), flags=cv2.CALIB_CB_ADAPTIVE_THRESH +
+#                                                cv2.CALIB_CB_FAST_CHECK +
+#                                                cv2.CALIB_CB_NORMALIZE_IMAGE)
+#         if ret:
+#             print("find chessboard corners!")
+#             obj_points.append(objp)
+#             corners2 = cv2.cornerSubPix(gray, corners, (5, 5), (-1, -1), criteria)  # 在原角点的基础上寻找亚像素角点
+#             # print(corners2)
+#             if [corners2]:
+#                 img_points.append(corners2)
+#             else:
+#                 img_points.append(corners)
+#             print("find corner_sub_pix!")
+#             # cv2.imwrite('conimg'+str(i)+'.jpg', img)
+#             # cv2.imwrite('conimg_6_' + str(i) + '.jpg', img)
+#             # cv2.waitKey(1500)
+#     print(len(img_points))
+#     # cv2.destroyAllWindows()
+#     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(obj_points, img_points, size_all, None, None)
+#     print("ret:", ret)
+#     print("mtx:\n", mtx)  # 内参数矩阵
+#     print("dist:\n", dist)  # 畸变系数   distortion cofficients = (k_1,k_2,p_1,p_2,k_3)
+#     print("rvecs:\n", rvecs)  # 旋转向量  # 外参数
+#     print("tvecs:\n", tvecs)  # 平移向量  # 外参数
+#     print("-----------------------------------------------------")
+#     img = cv2.imread(images[1])
+#     h, w = img.shape[:2]
+#     newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))  # 显示更大范围的图片（正常重映射之后会删掉一部分图像）
+#     print(newcameramtx)
+#     print("------------------使用undistort_perspective函数-------------------")
+#     dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
+#     # x, y, w, h = roi
+#     # dst1 = dst[y:y + h, x:x + w]
+#     return dst, w_, h_
 
 
 if __name__ == '__main__':
     criteria = (cv2.TERM_CRITERIA_MAX_ITER | cv2.TERM_CRITERIA_EPS, 30, 0.001)
     # 设置寻找亚像素角点的参数，采用的停止准则是最大循环次数30和最大误差容限0.001
-    images = glob.glob(R'D:\Courses\SJTU-IPP-Program2022\far\*.jpg')
+    images_cam = glob.glob(R'D:\Courses\SJTU-IPP-Program2022\far_v2\*.jpg')
     # images = glob.glob(R'D:\Courses\IPP\images\*.jpg')
     print("load the pictures!")
-    dst1, w, h = distort_recover(images, criteria)
-    dst2 = perspective_recover(dst1, criteria, w, h)
-    # dst2 = perspective_recover(img, criteria)
-    cv2.imwrite('c_test.jpg', dst2)
-    print ("方法一:dst的大小为:", dst2.shape)
+    newcameramtx, mtx, dist = get_camera_matrix(images_cam)
+    # dst1, w, h = distort_recover(images, criteria)
+    # images = glob.glob(R'D:\Courses\SJTU-IPP-Program2022\far_v2\*.jpg')
+    cnt = 0
+    for fname in images_cam:
+        cnt += 1
+        img = cv2.imread(fname)
+        h, w = img.shape[:2]
+        dst1 = cv2.undistort(img, mtx, dist, None, newcameramtx)
+        dst2 = perspective_recover(dst1, criteria, w, h)
+        file_name = "./after_perspective/AF_" + str(cnt) + ".jpg"
+        cv2.imwrite(file_name, dst2)
+        print("已写入:", file_name)
 
