@@ -24,7 +24,6 @@ def on_EVENT_LBUTTONDOWN(event, x, y, flags, param):
         global times
         times = times + 1
     if times == 2:
-        print("it is 2 now!")
         distance1 = getDist_P2P(points[0], points[1])
         distance2 = getDist_P2P(points[0], points[2])
         distance3 = getDist_P2P(points[3], points[4])
@@ -35,11 +34,12 @@ def on_EVENT_LBUTTONDOWN(event, x, y, flags, param):
         error_res_1 = "error_1:{} ".format(error_in_percent_1)
         error_res_2 = "error_2:{} ".format(error_in_percent_2)
         print("error_res_1:", error_res_1)
-        print("error_res_1:", error_res_2)
+        print("error_res_2:", error_res_2)
         file_handle.write(error_res_1)
         file_handle.write(error_res_2)
         file_handle.write("\n")
         file_handle.flush()
+        print("one pic is done!")
         times += 1
         # sys.exit(0)
         # return
@@ -56,11 +56,13 @@ for fname in images:
     img = cv2.resize(img, (int(y / 5), int(x / 5)))
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, corners = cv2.findChessboardCorners(gray, (11, 8), None)
-    print(corners)
-    print("len:", len(corners))
-    print(corners[0])
-    # corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+    corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
     points = [corners[0][0], corners[1][0], corners[11][0]]
+    # print(corners)
+    # distance1 = getDist_P2P(points[0], points[1])
+    # distance2 = getDist_P2P(points[0], points[2])
+    # print("distance1:", distance1)
+    # print("distance2:", distance2)
     for point in points:
         point[0] = point[0] / 5
         point[1] = point[1] / 5
@@ -70,7 +72,6 @@ for fname in images:
     cv2.resizeWindow("image", 1740, 1227)
     cv2.setMouseCallback("image", on_EVENT_LBUTTONDOWN, param=points)
     cv2.imshow("image", img)
-    print("one pic is done!")
     cv2.waitKey(0)
     continue
     # cv2.destroyWindow("image")
