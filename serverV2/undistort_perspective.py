@@ -165,8 +165,7 @@ def perspective_recover(dst, criteria, w, h, size=4000, ratio=0.03):
 #     # dst1 = dst[y:y + h, x:x + w]
 #     return dst, w_, h_
 
-
-if __name__ == '__main__':
+def main():
     criteria = (cv2.TERM_CRITERIA_MAX_ITER | cv2.TERM_CRITERIA_EPS, 30, 0.001)
     # 设置寻找亚像素角点的参数，采用的停止准则是最大循环次数30和最大误差容限0.001
     images_cam = glob.glob(R'D:\Courses\SJTU-IPP-Program2022\far_v2\*.jpg')
@@ -185,4 +184,8 @@ if __name__ == '__main__':
         file_name = "./after_perspective/AF_" + str(cnt) + ".jpg"
         cv2.imwrite(file_name, dst2)
         print("已写入:", file_name)
+
+
+if __name__ == '__main__':
+    main()
 
