@@ -1,0 +1,12 @@
+the difference in mm is: , 0.52mmthe standard deviation is:0.059 pixels
+the difference in mm is: , 1.44mmthe standard deviation is:0.06 pixels
+the difference in mm is: , 0.57mmthe standard deviation is:0.033 pixels
+the difference in mm is: , 1.15mmthe standard deviation is:0.023 pixels
+the difference in mm is: , 1.58mmthe standard deviation is:0.028 pixels
+the difference in mm is: , 0.56mmthe standard deviation is:0.023 pixels
+the difference in mm is: , 1.44mmthe standard deviation is:0.03 pixels
+the difference in mm is: , 0.34mmthe standard deviation is:0.033 pixels
+the difference in mm is: , 1.64mmthe standard deviation is:0.027 pixels
+the difference in mm is: , 0.27mmthe standard deviation is:0.023 pixels
+the difference in mm is: , 0.25mmthe standard deviation is:0.026 pixels
+the difference in mm is: , 0.74mmthe standard deviation is:0.024 pixels
