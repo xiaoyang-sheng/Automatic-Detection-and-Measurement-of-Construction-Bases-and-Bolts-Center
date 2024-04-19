@@ -25,8 +25,7 @@ Professor: Sung-Liang Chen (陈松良)
 
 Memember (contributors):
 
-- Zeyu Zhang
 - Xiaoyang Sheng 
-- Tiancheng Jiang
-- Zhaoyuan Liang
-- Zhengwei Wang
+- Zeyu Zhang
+
+
