@@ -1,4 +1,4 @@
-# SJTU_IPP_Program2022-Automatic-detection-and-measurement-of-construction-bases-and-bolts-center
+# SJTU_IPP_Program_2022-Automatic-detection-and-measurement-of-construction-bases-and-bolts-center
 
 This is the **working repository** of the project for the 24th University Innovation and Practice Program of Shanghai Jiao Tong University in 2022. **This is not the final repo/version.** 
 The detailed information could be checked in the file of "研究论文", which is the project paper in Chinese.
